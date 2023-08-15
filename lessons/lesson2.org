@@ -1,0 +1,120 @@
+#+title: lesson2a
+
+* abstract sum
+
+#+begin_src racket :tangle
+#lang sicp
+(define (sum term a next b)
+  (if (> a b)
+      0
+      (+ (term a)
+         (sum term
+              (next a)
+              next
+              b))))
+(define (sum-int a b)
+  (define (identity x) x)
+  (sum identity a (+ 1) b))
+(sum-int 1 100)
+(define (pi-sum a b)
+  (sum (lambda(i) (/ 1 (* i (+ i 2)))) a (lambda(i) (+ i 4)) b))
+(pi-sum 1 3)
+#+end_src
+
+#+RESULTS:
+: 425075684558025805744359184585143794041/1089380862964257455695840764614254743075
+
+
+
+* fixed point
+#+begin_src scheme
+(define (fixed-point f start)
+  (define tolerance 0.00001)
+  (define (close-enuf? u v)
+    (< (abs (- u v)) tolerance))
+  (define (iter old new)
+    (if (close-enuf? old new)
+        new
+        (iter new (f new))))
+  (iter start (f start)))
+
+(define f
+  (lambda (x) (- (* x x) x)))
+;; not working
+(fixed-point (average-damp f) 1.0)
+
+
+(define (sqrt x)
+  (fixed-point
+   (average-damp (lambda (y) (/ x y)))
+   1))
+(define (average a b)
+  (/ (+ a b) 2))
+;; average-damp
+(define average-damp
+  ;; f is a procedure
+  (lambda (f)
+    ;; average-damp generate the following procedure and return a procedure to parent
+    (lambda (x) (average (f x) x))))
+
+(sqrt 2.0)
+
+(define (square x) (* x x))
+
+(define (sqrt x)
+  (newton (lambda (y) (- x (square y)))
+          1))
+
+(define (newton f guess)
+  ;; wishful thinking, essential
+  ;; deriv is not implemented
+  (define df (deriv f))
+  (fixed-point
+   (lambda (x) (- x (/ (f x) (df x))))
+   guess))
+
+(define deriv
+  (lambda (f)
+    (lambda (x) (/ (- (f (+ x 0.0001)) (f x))
+                   0.0001))))
+(sqrt 6)
+#+end_src
+
+#+RESULTS:
+: 0.7390822985224024
+
+* Compound data
+rational clouds
+wishful thinking: pretend we have a data object
+abstract layer decision making
+
+** list structure
+#+begin_src scheme
+;; return pair: first part x, second part y
+(cons 2 3)
+(car (cons 2 3))
+(cdr (cons 2 3))
+(define (make-rat n d)
+  (let ((g (gcd n d)))
+  (cons (/ n g)
+        (/ d g))))
+(define (numer x) (car x))
+(define (denom x) (cdr x))
+(define (+rat x y)
+  (make-rat (+ (* (numer x) (denom y)) (* (numer y) (denom x)))
+            (* (denom x) (denom y))))
+(define a (make-rat 1 2))
+(define b (make-rat 1 4))
+(define ans (+rat a b))
+(numer ans)
+(denom ans)
+#+end_src
+
+#+RESULTS:
+: 4
+
+point on plane
+
+segment
+
+can have pair of pairs

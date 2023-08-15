@@ -1,0 +1,38 @@
+#+title: Lesson1
+
+* linear iter
+space order O(1)
+time order O(x)
+
+* Recursion
+space order O(x)
+time order O(x)
+more beuratical
+
+* fib
+
+* the tower of hanoi
+
+#+name: fib
+#+begin_src scheme
+(define (fib n)
+  (if (< n 2)
+      n
+      (+ (fib (- n 1))
+         (fib (- n 2)))))
+
+(fib 4)
+#+end_src
+
+#+RESULTS: fib
+: 3
+
+#+NAME: hanoi
+#+BEGIN_SRC scheme
+(define (move n from to spare)
+  (cond ((= n 0) "Done")
+        (else
+         (move (- 1 n) from spare to)
+         (privite-move from to)
+         (move (- 1 n) spare to from))))
+#+END_SRC
