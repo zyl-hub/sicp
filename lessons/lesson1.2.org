@@ -1,0 +1,18 @@
+why expmod works
+
+#+begin_src scheme
+(define square (lambda (x) (* x x)))
+(define (expmod base exp m)
+  (cond ((= exp 0) 1)
+	((even? exp)
+	 (remainder
+	  ;; works because x^2 % n = (x % n * x % n) % n
+	  (square (expmod base (/ exp 2) m))
+	  m))
+	(else
+	 (remainder
+	  ;; works because xy % n = (x % n * y % n) % n
+	  (* base (expmod base (- exp 1) m))
+	  m))))
+(expmod 2 3 3)
+#+end_src

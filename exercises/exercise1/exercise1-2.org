@@ -154,7 +154,7 @@ b. $O(log_{3}(10n))$
 #+RESULTS:
 : 4096
 
-* Exercise1.17
+* Exercise1.17 and Exercise1.18
 step: O(log(n))
 space: O(1)
 #+begin_src scheme
@@ -178,7 +178,7 @@ space: O(1)
   (* 3 8)
 #+end_src
 
-* Exercise1.18
+* Exercise1.19
 Transform matrix
 #+begin_src scheme
 (define (fib n)
@@ -202,3 +202,236 @@ Transform matrix
 
 #+RESULTS:
 : 377
+
+* Exercise1.20
+#+begin_src scheme
+(define (gcd a b)
+  (if (= b 0)
+      a
+      (gcd b (remainder a b))))
+#+end_src
+normal order: fully expand and then reduce, use remainder 1+2+4+7+2+1+1=18 times
+#+begin_src scheme
+(gcd 206 40)
+(gcd 40 (remainder 206 40))
+(gcd (remainder 206 40) (remainder 40 (remainder 206 40))) ; remainder 1 in if
+(gcd (remainder 40 (remainder 206 40)) (remainder (remainder 206 40) (remainder 40 (remainder 206 40)))) ; remainder 2 in if
+(gcd (remainder (remainder 206 40) (remainder 40 (remainder 206 40))) (remainder (remainder 40 (remainder 206 40)) (remainder (remainder 206 40) (remainder 40 (remainder 206 40))))) ;remainder 4 in if
+(remainder (remainder 206 40) (remainder 40 (remainder 206 40))) ;remainder 7 in if
+(remainder 6 (remainder 40 6)) ;remainder 2
+(remainder 6 4) ;remainder 1
+2 ;remainder 1
+#+end_src
+
+applicative order: evaluate the arguments and then apply, use remainder operation four times
+#+begin_src scheme
+(gcd 206 40)
+(gcd 40 6)
+(gcd 6 4)
+(gcd 4 2)
+(gcd 2 0)
+#+end_src
+
+* Exercise1.21
+#+begin_src scheme
+(define square (lambda (x) (* x x)))
+(define (smallest-divisor n) (find-divisor n 2))
+(define (find-divisor n test-divisor)
+  (cond ((> (square test-divisor) n) n)
+	((divides? test-divisor n) test-divisor)
+	(else (find-divisor n (+ test-divisor 1)))))
+(define (divides? a b) (= (remainder b a) 0))
+(smallest-divisor 19999)
+#+end_src
+
+#+RESULTS:
+7
+
+* Exercise1.22
+$\sqrt{10}$
+#+begin_src scheme
+(define square (lambda (x) (* x x)))
+(define (prime? n)
+  (= n (smallest-divisor n)))
+(define (smallest-divisor n) (find-divisor n 2))
+(define (find-divisor n test-divisor)
+  (cond ((> (square test-divisor) n) n)
+	((divides? test-divisor n) test-divisor)
+	(else (find-divisor n (+ test-divisor 1)))))
+(define (divides? a b) (= (remainder b a) 0))
+(define (even? n)
+  (= (remainder n 2) 0))
+(define (timed-prime-test n)
+  ;; (newline)
+  ;; (display n)
+  (start-prime-test n (runtime)))
+(define (start-prime-test n start-time)
+  (if (prime? n)
+      (report-prime n (- (runtime) start-time))))
+(define (report-prime n elapsed-time)
+  (newline)
+  (display n)
+  (display " *** ")
+  (display elapsed-time))
+(define (search-for-primes start end)
+  (cond ((even? start) (search-for-primes (+ start 1) end))
+	((<= start end) (timed-prime-test start) (search-for-primes (+ start 2) end))))
+
+(search-for-primes 1000000000 1000000021)       ; 0.02
+(search-for-primes 10000000000 10000000061)     ; 0.06
+(search-for-primes 100000000000 100000000057)   ; 0.21
+(search-for-primes 1000000000000 1000000000063) ; 0.54
+#+end_src
+
+#+RESULTS:
+
+* Exercise1.23
+#+begin_src scheme
+(define square (lambda (x) (* x x)))
+(define (smallest-divisor n) (find-divisor n 2))
+(define (find-divisor n test-divisor)
+  (cond ((> (square test-divisor) n) n)
+	((divides? test-divisor n) test-divisor)
+	(else (find-divisor n (next test-divisor)))))
+(define (divides? a b) (= (remainder b a) 0))
+(define next (lambda (x) (cond ((= x 2) 3)
+			       (else (+ x 2)))))
+(smallest-divisor 19999)
+
+#+end_src
+
+#+RESULTS:
+7
+
+* Exercise1.24
+#+begin_src scheme
+(define square (lambda (x) (* x x)))
+(define (expmod base exp m)
+  (cond ((= exp 0) 1)
+	((even? exp)
+	 (remainder
+	  (square (expmod base (/ exp 2) m))
+	  m))
+	(else
+	 (remainder
+	  (* base (expmod base (- exp 1) m))
+	  m))))
+(define (fermat-test n)
+  (define (try-it a)
+    (= (expmod a n n) a))
+  (try-it (+ 1 (random (- n 1)))))
+(define (fast-prime? n times)
+  (cond ((= times 0) true)
+	((fermat-test n) (fast-prime? n (- times 1)))
+	(else false)))
+(define (timed-prime-test n)
+  ;; (newline)
+  ;; (display n)
+  (start-prime-test n (runtime)))
+(define (start-prime-test n start-time)
+  (if (fast-prime? n 2)
+      (report-prime n (- (runtime) start-time))))
+(define (report-prime n elapsed-time)
+  (newline)
+  (display n)
+  (display " *** ")
+  (display elapsed-time))
+ (newline) 
+ (timed-prime-test 1000000007) 
+ (timed-prime-test 1000000009) 
+ (timed-prime-test 1000000021) 
+ (timed-prime-test 10000000019) 
+ (timed-prime-test 10000000033) 
+ (timed-prime-test 10000000061) 
+ (timed-prime-test 100000000003) 
+ (timed-prime-test 100000000019) 
+ (timed-prime-test 100000000057) 
+ (timed-prime-test 1000000000039) 
+ (timed-prime-test 1000000000061) 
+(timed-prime-test 1000000000063)
+(timed-prime-test 1000000000063)
+#+end_src
+
+#+RESULTS:
+
+* Exercise1.25
+#+begin_src scheme
+(define (square x) (* x x))
+(define (even? n)
+(= (remainder n 2) 0))
+(define (fast-expt b n)
+(cond ((= n 0) 1)
+((even? n) (square (fast-expt b (/ n 2))))
+(else (* b (fast-expt b (- n 1))))))
+(define (expmod base exp m)
+  (remainder (fast-expt base exp) m))
+(expmod 2 4 3)
+#+end_src
+
+#+RESULTS:
+yes, but it is slower, because larger number is used in remainder
+
+* Exercise1.26
+do it better when use n
+(* (expmod base n m) (expmod base n m)) take k step
+(* (expmod base 2n m) (expmod base 2n m))
+(* (* (expmod base n m) (expmod base n m)) (* (expmod base n m) (expmod base n m))) take 2k step
+
+* Exercise1.27
+#+begin_src scheme
+(define square (lambda (x) (* x x)))
+(define (expmod base exp m)
+  (cond ((= exp 0) 1)
+	((even? exp)
+	 (remainder
+	  (square (expmod base (/ exp 2) m))
+	  m))
+	(else
+	 (remainder
+	  (* base (expmod base (- exp 1) m))
+	  m))))
+(define (carmi n)
+  (carmichael n 1))
+(define (carmichael n count)
+  (cond ((= n count) true)
+	((= (expmod count n n) count) (carmichael n (+ count 1)))
+	(else false)))
+(carmi 561) ; t
+(carmi 1105) ; t
+(carmi 1729) ; t
+(carmi 12454) ; f
+#+end_src
+
+* Exercise 1.28
+Miller-Rabin test
+#+begin_src scheme
+(define (square x)
+  (* x x))
+(define (miller-rabin-square-remainder x y)
+  (cond ((and (= (remainder (square x) y) 1) (not (= x 1)) (not (= x (- y 1)))) 0)
+	(else (remainder (square x) y))))
+(define (expmod base exp m)
+  (cond ((= exp 0) 1)
+	((even? exp)
+	 (miller-rabin-square-remainder
+	  (expmod base (/ exp 2) m)
+	  m))
+	(else
+	 (remainder
+	  (* base (expmod base (- exp 1) m))
+	  m))))
+(define (miller-rabin-test n)
+  (define (try-it a)
+    (define (true-or-false x)
+      (cond ((= x 0) false)
+	    ((= x 1) true)))
+    (true-or-false (expmod a (- n 1) n)))
+  (try-it (+ 1 (random (- n 1)))))
+(define (fast-prime? n times)
+  (cond ((= times 0) true)
+	((miller-rabin-test n) (fast-prime? n (- times 1)))
+	(else false)))
+(fast-prime? 561 2)
+#+end_src
+
+
