@@ -19,7 +19,7 @@ recursive
 9
 #+end_src
 ** the second one
-interative
+iterative
 #+begin_src scheme
   (define (+ a b)
   (if (= a 0) b (+ (dec a) (inc b))))
@@ -108,12 +108,14 @@ iterative, c is the value to return
 2. assume it is true for n < k
    $fib(k) = (\varphi^{k} - \psi^{k})/\sqrt{5}$
 3. prove it is true for n = k + 1
-   \begin{flalign*}
+
+
+      \begin{flalign*}
    fib(k+1) &= fib(k) + fib(k-1) \\
             &= (\varphi^{k} - \psi^{k})/\sqrt{5} + (\varphi^{k-1} - \psi^{k-1})/\sqrt{5} \\
             &= \frac{(\varphi+1)(\varphi^{k-1})-(\psi+1)(\psi^{k-1})}{\sqrt{5}} \\
             &= \frac{(\varphi^2)(\varphi^{k-1})-(\psi^2)(\psi^{k-1})}{\sqrt{5}} \\
-            &= \frac{\varphi^{k+1})-\psi^{k+1})}{\sqrt{5}}
+            &= \frac{(\varphi^{k+1}-\psi^{k+1})}{\sqrt{5}}
             \end{flalign*}
 so $fib(n)=(\varphi^{n}-\psi^{n})/\sqrt{5}$
 note that $0<\psi<1$ so $\psi^{n}/\sqrt{5}<0.5$
@@ -134,7 +136,7 @@ fib(n) is the closest integer to $\varphi^{n}/\sqrt{5}$
 
 * Exercise1.15
 a. 5 times
-b. $O(log_{3}(10n))$
+b. $O(\log_{3}(10n))$
 
 * Exercise1.16
 #+begin_src scheme
