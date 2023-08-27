@@ -1,3 +1,4 @@
+#+STARTUP: indent
 #+title: Exercise1-2
 
 * Exercise1.9
