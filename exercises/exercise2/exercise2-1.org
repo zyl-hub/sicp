@@ -156,6 +156,7 @@ Church numerals
   (max (car c) (cdr c)))
 (define (lower-bound c)
   (min (car c) (cdr c)))
+(define (add-interval x y) (make-interval (+ (lower-bound x) (lower-bound y)) (+ (upper-bound x) (upper-bound y)))) 
 (define (sub-interval x y)
   (make-interval (- (lower-bound x) (upper-bound y)) (- (upper-bound x) (lower-bound y))))
 (define
@@ -233,27 +234,49 @@ Church numerals
 
 ;; Exercise 2.14
 (define A (make-center-percent 100 0.00001))
-(define B (make-center-percent 50 0.00001))
+(define B (make-center-percent 0.000000000000000000000001 0.00001))
 (define A/A (div-interval A A))
 (percent A/A)
 (center A/A)
 ;; 0.00002, 1.0000000002
+(define A/B (div-interval A B))
+(percent A/B)
+(center A/B)
+;; 0.00002,2.0000000004
+(define
+  (par1 r1 r2)
+  (div-interval
+   (mul-interval r1 r2)
+   (add-interval r1 r2)))
+(define
+  (par2 r1 r2)
+  (let ((one (make-interval 1 1)))
+    (div-interval
+     one
+     (add-interval
+      (div-interval one r1)
+      (div-interval one r2)))))
 
-
+(define par1AB (par1 A B))
+(define par2AB (par2 A B))
+(percent par1AB)
+;; 0.00002999
+(percent par2AB)
+;; 0.00001
 #+end_src
 
 * Exercise 2.9
 \begin{flalign*}
 x+y&=[lower(x)+lower(y), upper(x)+upper(y)] \\
 width(x+y)&=\frac{upper(x)+upper(y)-lower(x)-lower(y)}{2} \\
-&=\frac{2 \mul width(x)+2 \mul width(y)}{2} \\
+&=\frac{2 * width(x) + 2 * width(y)}{2} \\
 &=width(x)+width(y)
 \end{flalign*}
 
 \begin{flalign*}
 x-y&=[lower(x)-upper(y), upper(x)-lower(y)] \\
 width(x-y)&=\frac{upper(x)+upper(y)-lower(x)-lower(y)}{2} \\
-&=\frac{2 \mul width(x)+2 \mul width(y)}{2} \\
+&=\frac{2 * width(x)+2 * width(y)}{2} \\
 &=width(x)+width(y)
 \end{flalign*}
 
@@ -261,4 +284,8 @@ width(x-y)&=\frac{upper(x)+upper(y)-lower(x)-lower(y)}{2} \\
 [1,2]/[3,4]=[1/4,4/1]=[0.25,4] \neq width(x)+width(y) or width(x)-width(y)
 \end{flalign*}
 
-* Exercise 2.10
+* Exercise 2.15
+Yes, because par1 use $R_1$ and $R_2$ twice
+
+* Exercise 2.16
+Because everytime use an interval can lead to some difference
