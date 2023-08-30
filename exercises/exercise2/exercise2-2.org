@@ -1,0 +1,76 @@
+#+STARTUP: indent
+#+TITLE: Exercise2-2
+* Exercise2.17
+#+begin_src scheme
+(define (end x)
+  (if (null? (cdr x))
+      (car x)
+      (end (cdr x))))
+
+(define test-list (list 1 2 3 4 5 6))
+(end test-list)
+;; 6
+#+end_src
+
+* Exercise2.18
+#+begin_src scheme
+(define (reverse x)
+  (define (reverse-iter x result)
+    (if (null? x)
+	result
+	(reverse-iter (cdr x) (cons (car x) result))))
+  (reverse-iter x (list)))
+
+(define test-list (list 1 2 3 4 5 6))
+(reverse test-list)
+;; (6,5,4,3,2,1)
+#+end_src
+
+* Exercise2.19
+#+begin_src scheme
+(define us-coins (list 50 25 10 5 1))
+(define uk-coins (list 100 50 20 10 5 2 1 0.5))
+(define (except-first-denomination x)
+  (cdr x))
+(define (no-more? x)
+  (null? x))
+(define (first-denomination x)
+  (car x))
+(define
+  (cc amount coin-values)
+  (cond ((= amount 0) 1)
+	((or (< amount 0)
+	     (no-more? coin-values))
+	 0)
+	(else
+	 (+
+	  (cc
+	   amount
+	   (except-first-denomination
+	    coin-values))
+	  (cc
+	   (-
+	    amount
+	    (first-denomination
+	     coin-values))
+	   coin-values)))))
+(cc 100 us-coins)
+#+end_src
+Does the order of the list coinvalues affect the answer produced by cc? Why or why not?
+No, because when the order changed, for example it changed to (1, 50,
+25, 10, 5), and amount is 100, then in the first recursive step the
+result is (cc 100 (50, 25, 10, 5)) + (cc 99 (1, 50, 25, 10, 5)), all
+cases are still included.
+
+* Exercise2.20
+#+begin_src scheme
+(define (same-parity . x)
+  (define (same-parity-iter first result x)
+    (cond ((null? x)
+	   result)
+	  ((= (remainder first 2) (remainder (car x) 2))
+	   (same-parity-iter first (append result (list (car x))) (cdr x)))
+	  (else (same-parity-iter first result (cdr x)))))
+  (same-parity-iter (car x) (list) x))
+(same-parity 1 2 3 4 5 6 7)
+#+end_src
