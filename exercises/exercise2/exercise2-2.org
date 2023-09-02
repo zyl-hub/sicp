@@ -65,12 +65,293 @@ cases are still included.
 * Exercise2.20
 #+begin_src scheme
 (define (same-parity . x)
-  (define (same-parity-iter first result x)
+  (define (same-parity-iter first x)
     (cond ((null? x)
-	   result)
+	   '())
 	  ((= (remainder first 2) (remainder (car x) 2))
-	   (same-parity-iter first (append result (list (car x))) (cdr x)))
-	  (else (same-parity-iter first result (cdr x)))))
-  (same-parity-iter (car x) (list) x))
+	   (cons (car x) (same-parity-iter first (cdr x))))
+	  (else (same-parity-iter first (cdr x)))))
+  (same-parity-iter (car x) x))
 (same-parity 1 2 3 4 5 6 7)
 #+end_src
+
+syntax sugar
+#+begin_src scheme
+(define (same-parity . x)
+  (let parity ((first (car x)) (x x))
+       (cond ((null? x) '())
+             ((= (remainder (car x) 2) (remainder first 2))
+              (cons (car x)
+                     (parity first (cdr x))))
+             (else (parity first (cdr x))))))
+(same-parity 2 1 1 2 3 4 5 6 7)
+#+end_src
+* Exercise2.21
+map
+#+begin_src scheme
+(define (square-list x)
+  (map (lambda (x) (* x x))
+       x))
+(square-list (list 1 2 3 4)) 
+#+end_src
+
+recursive
+#+begin_src scheme
+(define (square x)
+  (* x x))
+(define (square-list items)
+  (if (null? items)
+      ;; nil not working, use '() instead
+      '()
+      (cons (square (car items)) (square-list (cdr items)))))
+
+(square-list (list 1 2 3 4))
+#+end_src
+
+* Exercise2.22
+the first one
+(cons 1 '())
+(cons 4 (list 1))
+(cons 9 (list 4 1))
+...
+
+the second
+(cons null 1)
+(cons (null 1) 4)
+(cons ((null 1) 4) 9)
+...
+
+#+begin_src scheme
+(define
+  (square-list items)
+  (define
+    (iter things answer)
+    (if (null? things)
+	answer
+	(iter
+	 (cdr things)
+	 (append answer
+	       (list (square (car things)))))))
+  (iter items '()))
+(square-list (list 1 2 3 4))
+#+end_src
+
+* Exercise2.23
+#+begin_src scheme
+(define (for-each p x)
+  (if (null? x)
+      true
+      (begin (p (car x)) (for-each p (cdr x)))))
+(for-each (lambda (x) (newline) (display x)) (list 57 321 88))
+#+end_src
+
+* Exercise2.24
+result printed by the interpreter:
+(1 (2 (3 4)))
+
+structure:
+(1 (2 (3 4)))--->(2 (3 4))--->(3 4)--->(4 null)
+ |                |            |        |
+ v                v            v        v
+ 1                2            3        4
+
+
+the list structure viewed as a tree:
+(1 (2 (3 4)))
+/            \
+1           (2 (3 4))
+            /       \
+            2       (3 4)
+                    /    \
+                    3     4
+
+* Exercise2.25
+#+begin_src scheme
+(car (cdr (car (cdr (cdr (list 1 3 (list 5 7) 9))))))
+(car (car (list (list 7))))
+(car (cadr (cadr (cadr (cadr (cadr (cadr (list 1 (list 2 (list 3 (list 4 (list 5 (list 6 (list 7))))))))))))))
+#+end_src
+
+* Exercise2.26
+#+begin_src scheme
+(define x (list 1 2 3))
+(define y (list 4 5 6))
+(append x y)
+;; (1 2 3 4 5 6)
+(cons x y)
+;; ((1 2 3) 4 5 6)
+(list x y)
+;; ((1 2 3) (4 5 6))
+#+end_src
+
+* Exercise2.27
+#+begin_src scheme
+(define (reverse x)
+  (if (null? x)
+      '()
+      (append (reverse (cdr x)) (list (car x)))))
+(define x (list (list 1 2) (list 3 4)))
+(reverse x)
+
+(define (deep-reverse x)
+  (cond ((null? x) '())
+	  ((not (pair? x)) x)
+	  (else
+	   (append (deep-reverse (cdr x)) (list (deep-reverse (car x)))))))
+(deep-reverse x)
+(define x (list (list 1 2 (list 3 4)) (list 5 6)))
+x
+;; ((1 2 (3 4)) (5 6))
+(deep-reverse x)
+;; ((6 5) ((4 3) 2 1))
+
+#+end_src
+
+* Exercise2.28
+#+begin_src scheme
+(define (fringe x)
+  (cond ((null? x) '())
+	((not (pair? x)) (list x))
+	(else
+	 (append (fringe (car x)) (fringe (cdr x))))))
+(define x (list (list 1 2) (list 3 4)))
+(fringe x)
+(fringe (list x x))
+#+end_src
+
+* Exercise2.29
+#+begin_src scheme
+(define (make-mobile left right)
+  (list left right))
+(define (make-branch length structure)
+  (list length structure))
+(define (left-branch mobile)
+  (car mobile))
+(define (right-branch mobile)
+  (car (cdr mobile)))
+(define (branch-length branch)
+  (car branch))
+(define (branch-structure branch)
+  (car (cdr branch)))
+
+;; d.
+(define (make-mobile left right)
+  (cons left right))
+(define (make-branch length structure)
+  (cons length structure))
+(define (right-branch mobile)
+  (cdr mobile))
+(define (branch-structure branch)
+  (cdr branch))
+(define
+  (total-weight mobile)
+  (cond ((null? mobile) 0)
+	((not (pair? mobile)) mobile)
+	(else
+	 (+
+	  (total-weight
+	   (branch-structure
+	    (left-branch mobile)))
+	  (total-weight
+	   (branch-structure
+	    (right-branch mobile)))))))
+(define
+  (balanced mobile)
+  (cond ((null? mobile) true)
+	((not (pair? mobile)) true)
+	((= (*
+	     (branch-length
+	      (left-branch mobile))
+	     (total-weight
+	      (branch-structure
+	       (left-branch mobile))))
+	    (*
+	     (branch-length
+	      (right-branch mobile))
+	     (total-weight
+	      (branch-structure
+	       (right-branch mobile)))))
+	 (and (balanced
+	       (branch-structure
+		(left-branch mobile)))
+	      (balanced
+	       (branch-structure
+		(right-branch mobile)))))
+	(else false)))
+(define
+  m1
+  (make-mobile
+   (make-branch 4 6)
+   (make-branch
+    5
+    (make-mobile
+     (make-branch 3 7)
+     (make-branch 9 8)))))
+(total-weight m1)
+;; 21
+(balanced m1)
+;; #f
+(define
+  m2
+  (make-mobile
+   (make-branch 1 5)
+   (make-branch 5 1)))
+(balanced m2)
+;; #t
+#+end_src
+After the representation of mobiles changed, we only need to rewrite
+the /right-branch/ and /branch-structure/ selector
+
+* Exercise2.30
+#+begin_src scheme
+(define (square-tree tree)
+  (map (lambda (sub-tree)
+	 (if (pair? sub-tree)
+	     (square-tree sub-tree)
+	     (* sub-tree sub-tree)))
+       tree))
+(square-tree (list 1 (list 2 (list 3 4) 5) (list 6 7)))
+;; (1 (4 (9 16) 25) (36 49))
+(define (square-tree tree)
+  (cond ((null? tree) '())
+	((not (pair? tree)) (* tree tree))
+	(else (cons (square-tree (car tree))
+		    (square-tree (cdr tree))))))
+(square-tree (list 1 (list 2 (list 3 4) 5) (list 6 7)))
+#+end_src
+
+* Exercise2.31
+#+begin_src scheme
+(define (tree-map procedure tree)
+  (cond ((null? tree) '())
+	((not (pair? tree)) (procedure tree))
+	(else (cons (tree-map procedure (car tree))
+		    (tree-map procedure (cdr tree))))))
+(define (square x)
+  (* x x))
+(define (square-tree tree) (tree-map square tree))
+(square-tree (list 1 (list 2 (list 3 4) 5) (list 6 7)))
+;; (1 (4 (9 16) 25) (36 49))
+#+end_src
+
+* Exercise2.32
+#+begin_src scheme
+(define
+  (subsets s)
+  (if (null? s)
+      (list '())
+      (let ((rest (subsets (cdr s))))
+	(append rest (map (lambda (x)
+			    (cons (car s) x)) rest)))))
+(define set (list 1 2 3))
+(subsets (list 2))
+#+end_src
+
+#+begin_src scheme
+(null? '())
+;; #t
+(cons 2 '())
+;; (2)
+#+end_src
+
+* Exercise2.33
