@@ -457,7 +457,7 @@ the /right-branch/ and /branch-structure/ selector
 	(iter (op result (car rest))
 	      (cdr rest))))
   (iter initial sequence))
-(define (fold-right op initial sequence) (if (null? sequence) initial (op (car sequence) (accumulate op initial (cdr sequence)))))
+(define (fold-right op initial sequence) (if (null? sequence) initial (op (car sequence) (fold-right op initial (cdr sequence)))))
 
 ;; (fold-right / 1 (list 1 2 3))
 ;; 3/2
@@ -481,4 +481,76 @@ the /right-branch/ and /branch-structure/ selector
 ;; (4 3 2 1)
 #+end_src
 fold-right and fold-left will get the same values if (op x y)==(op y x)
+
+* Exercise2.40 && 2.41
+#+begin_src scheme
+(define (accumulate op initial sequence) (if (null? sequence) initial (op (car sequence) (accumulate op initial (cdr sequence)))))
+(define (accumulate-or initial sequence) (if (null? sequence) initial (or (car sequence) (accumulate-or initial (cdr sequence)))))
+(define (flatmap proc seq) (accumulate append '() (map proc seq)))
+(define (make-pair-sum pair)
+  (list (car pair) (cadr pair) (+ (car pair) (cadr pair))))
+(define (prime-sum? pair) (prime? (+ (car pair) (cadr pair)))) 
+(define (fermat-test n) (define (try-it a) (= (expmod a n n) a)) (try-it (+ 1 (random (- n 1)))))
+(define (expmod base exp m) (cond ((= exp 0) 1) ((even? exp) (remainder (square (expmod base (/ exp 2) m)) m)) (else (remainder (* base (expmod base (- exp 1) m)) m)))) 
+(define (fast-prime? n times) (cond ((= times 0) true) ((fermat-test n) (fast-prime? n (- times 1))) (else false)))
+(define (prime? x)
+  (fast-prime? x 2))
+(define (enumerate-interval low high)
+  (if (> low high)
+      '()
+      (cons low (enumerate-interval (+ low 1) high))))
+
+;; unique-pair
+(define (unique-pairs n)
+  (flatmap
+   (lambda (i)
+     (map (lambda (j) (list i j))
+	  (enumerate-interval 1 (- i 1))))
+   (enumerate-interval 1 n)))
+(unique-pairs 3)
+;; ((2 1) (3 1) (3 2))
+
+(define
+  (prime-sum-pairs n)
+  (map
+   make-pair-sum
+   (filter
+    prime-sum?
+    (unique-pairs n))))
+(prime-sum-pairs 3)
+
+(define (unique-triples n)
+  (flatmap
+   (lambda (i)
+     (flatmap (lambda (j)
+	    (map (lambda (k) (list i j k))
+		 (enumerate-interval 1 n)))
+	  (enumerate-interval 1 n)))
+   (enumerate-interval 1 n)))
+(unique-triples 2)
+;; ((1 1 1) (1 1 2) (1 2 1) (1 2 2) (2 1 1) (2 1 2) (2 2 1) (2 2 2))
+
+(define (queens board-size)
+  (define (queen-cols k)
+    (if (= k 0)
+	(list empty-board)
+	(filter
+	 (lambda (positions)
+	   (safe? k positions))
+	 (flatmap (lambda (rest-of-queens)
+		    (map (lambda (new-row)
+			   (adjoin-position new-row k rest-of-queens))
+			 (enumerate-interval 1 board-size)))
+		  (queen-cols (- k 1))))))
+  (queen-cols board-size))
+(define empty-board '())
+(define (safe? k positions)
+  (let ((last (car positions)))
+    (accumulate-or false (map (lambda (x) (= last x)) (cdr positions)))))
+(define (adjoin-position new-row k rest-of-queens)
+  ())
+;; (safe? 8 (list 1 2 3 4 5 6 7 7))
+(define positions (list 1 1 3 4))
+(safe? 1 positions)
+#+end_src
 
