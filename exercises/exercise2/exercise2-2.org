@@ -140,8 +140,8 @@ the second
 #+begin_src scheme
 (define (for-each p x)
   (if (null? x)
-      true
-      (begin (p (car x)) (for-each p (cdr x)))))
+      #t
+      (and (p (car x)) (for-each p (cdr x)))))
 (for-each (lambda (x) (newline) (display x)) (list 57 321 88))
 #+end_src
 
@@ -593,7 +593,7 @@ Because flatmap use append, (append list1 list2) will car list1 until list1 is n
 	  (proc1 painter (proc2 smaller smaller))))))
 #+end_src
 
-* Exercise2.46
+* Exercise2.46&&2.47
 #+begin_src scheme
 (define (make-vector x y)
   (cons x y))
@@ -638,4 +638,136 @@ Because flatmap use append, (append list1 list2) will car list1 until list1 is n
 (origin-frame frame1)
 (edge1-frame frame1)
 (edge2-frame frame1)
+
+;; Exercise2.48
+(define (make-segment v1 v2)
+  (cons v1 v2))
+(define (start-segment segment)
+  (car segment))
+(define (end-segment segment)
+  (cdr segment))
+;; (define seg1 (make-segment vect1 vect2))
+;; (start-segment seg1)
+;; (end-segment seg1)
+
+
+;; Exercise2.49
+(define (for-each p x)
+  (if (null? x)
+      #t
+      (and (p (car x)) (for-each p (cdr x)))))
+(define
+  (frame-coord-map frame)
+  (lambda (v)
+    (add-vect
+     (origin-frame frame)
+     (add-vect
+      (scale-vect
+       (xcor-vect v)
+       (edge1-frame frame))
+      (scale-vect
+       (ycor-vect v)
+       (edge2-frame frame))))))
+(define
+  (segments->painter
+   segment-list)
+  (lambda (frame)
+    (for-each
+     (lambda (segment)
+       (draw-line
+	((frame-coord-map frame)
+	 (start-segment segment))
+	((frame-coord-map frame)
+	 (end-segment segment))))
+     segment-list)))
+(define outline
+  (let ((segment-list (list
+		       (make-segment
+			(make-vect 0 0)
+			(make-vect 1 0))
+		       (make-segment
+			(make-vect 0 0)
+			(make-vect 0 1))
+		       (make-segment
+			(make-vect 1 0)
+			(make-vect 1 1))
+		       (make-segment
+			(make-vect 1 1)
+			(make-vect 0 1)))))
+    (segments->painter segment-list)))
+
+(define x-painter
+  (let ((segment-list (list
+		       (make-segment
+			(make-vect 0 0)
+			(make-vect 1 1))
+		       (make-segment
+			(make-vect 0 1)
+			(make-vect 1 0)))))
+    (segments->painter segment-list)))
+
+(define diamond
+  (let ((segment-list (list
+		       (make-segment
+			(make-vect 0.5 0)
+			(make-vect 1 0.5))
+		       (make-segment
+			(make-vect 0.5 0)
+			(make-vect 0 0.5))
+		       (make-segment
+			(make-vect 0.5 1)
+			(make-vect 1 0.5))
+		       (make-segment
+			(make-vect 0.5 1)
+			(make-vect 0 0.5)))))
+    (segments->painter segment-list)))
+
+(define wave
+  (let ((segment-list (list
+		       (make-segment
+			(make-vect 0.1 0)
+			(make-vect 0.25 0.6))
+		       (make-segment
+			(make-vect 0.3 0)
+			(make-vect 0.5 0.3))
+		       (make-segment
+			(make-vect 0.7 0)
+			(make-vect 0.5 0.3))
+		       (make-segment
+			(make-vect 0.9 0)
+			(make-vect 0.75 0.6))
+		       (make-segment
+			(make-vect 0.25 0.6)
+			(make-vect 0 0.4))
+		       (make-segment
+			(make-vect 0.75 0.6)
+			(make-vect 0.9 0.4))
+		       (make-segment
+			(make-vect 0.9 0.4)
+			(make-vect 1 0.6))
+		       (make-segment
+			(make-vect 0.6 1)
+			(make-vect 0.7 0.9))
+		       (make-segment
+			(make-vect 0.7 0.9)
+			(make-vect 0.6 0.8))
+		       (make-segment
+			(make-vect 0.6 0.8)
+			(make-vect 0.8 0.7))
+		       (make-segment
+			(make-vect 0.8 0.7)
+			(make-vect 1 0.8))
+		       (make-segment
+			(make-vect 0.4 1)
+			(make-vect 0.3 0.9))
+		       (make-segment
+			(make-vect 0.3 0.9)
+			(make-vect 0.4 0.8))
+		       (make-segment
+			(make-vect 0.4 0.8)
+			(make-vect 0 0.6)))))
+    (segments->painter segment-list)))
+
 #+end_src
+
+
