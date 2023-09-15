@@ -545,15 +545,31 @@ fold-right and fold-left will get the same values if (op x y)==(op y x)
 		  (queen-cols (- k 1))))))
   (queen-cols board-size))
 (define empty-board (list))
+
 (define (safe? k positions)
   (let ((last (car positions)))
     (accumulate-and true (map (lambda (x) (not (= last x))) (cdr positions)))))
+
+(define (count-map proc items count)
+  (if (null? items)
+      '()
+      (cons (proc (car items) count)
+	    (count-map proc (cdr items) (+ count 1)))))
+
+(define (safe? k positions)
+  (let ((last (car positions)))
+    (accumulate-and true (count-map (lambda (x y) (and (not (= last x))
+					               (not (= last (- x y)))
+						       (not (= last (+ x y))))) (cdr positions) 1))))
+
 (define (adjoin-position new-row k rest-of-queens)
   (append (list new-row) rest-of-queens))
-;; (safe? 8 (list 1 2 3 4 5 6 7 7))
-(define positions (list 1 1 3 4))
-(queens 3)
-;; ((3 2 1) (2 3 1) (3 1 2) (1 3 2) (2 1 3) (1 2 3))
+;; (safe? 4 (list 2 4 1 3))
+;; (define positions (list 1 1 3 4))
+(queens 4)
+;; ((3 1 4 2) (2 4 1 3))
+(queens 5)
+;; ((4 2 5 3 1) (3 5 2 4 1) (5 3 1 4 2) (4 1 3 5 2) (5 2 4 1 3) (1 4 2 5 3) (2 5 3 1 4) (1 3 5 2 4) (3 1 4 2 5) (2 4 1 3 5))
 #+end_src
 
 * Exercise2.43
@@ -593,7 +609,7 @@ Because flatmap use append, (append list1 list2) will car list1 until list1 is n
 	  (proc1 painter (proc2 smaller smaller))))))
 #+end_src
 
-* Exercise2.46&&2.47&&2.48&&2.49
+* Exercise2.46&&2.47&&2.48&&2.49&&2.50&&2.51&&2.52
 #+begin_src scheme
 (define (make-vector x y)
   (cons x y))

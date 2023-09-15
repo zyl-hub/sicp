@@ -1,0 +1,38 @@
+#+STARTUP: indent
+* Exercise2.53
+#+begin_src scheme
+(list 'a 'b 'c)
+;; (a b c)
+(list (list 'george))
+;; ((george))
+(cdr '((x1 x2)))
+;; ()
+(cadr '((x1 x2) (y1 y2)))
+;; (y1 y2)
+(pair? (car '(a short list)))
+;; #f
+(memq 'red '((red shoes) (blue socks)))
+;; #f
+(memq 'red '(red shoes blue socks))
+;; (red shoes blue socks)
+#+end_src
+
+* Exercise2.54
+#+begin_src scheme
+(define (equal? list1 list2)
+  (if (and (null? list1) (null? list2))
+      #t
+      (and (eq? (car list1) (car list2)) (equal? (cdr list1) (cdr list2)))))
+(equal? '(this is a list) '(this is a list))
+;; #t
+(equal? '(this is a list) '(this (is a) list))
+;; #f
+#+end_src
+
+* Exercise2.55
+#+begin_src scheme
+(car ''abracadabra)
+;; quote
+#+end_src
+Because 'abracadabra == (quote abracadabra)
+        (car '(quote abracadabra)) == quote
