@@ -1,7 +1,8 @@
 #+STARTUP: indent
 #+TITLE: Exercise2-2
 * Exercise2.17
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (define (end x)
   (if (null? (cdr x))
       (car x)
@@ -13,7 +14,8 @@
 #+end_src
 
 * Exercise2.18
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (define (reverse x)
   (define (reverse-iter x result)
     (if (null? x)
@@ -27,7 +29,8 @@
 #+end_src
 
 * Exercise2.19
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (define us-coins (list 50 25 10 5 1))
 (define uk-coins (list 100 50 20 10 5 2 1 0.5))
 (define (except-first-denomination x)
@@ -63,7 +66,8 @@ result is (cc 100 (50, 25, 10, 5)) + (cc 99 (1, 50, 25, 10, 5)), all
 cases are still included.
 
 * Exercise2.20
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (define (same-parity . x)
   (define (same-parity-iter first x)
     (cond ((null? x)
@@ -76,7 +80,8 @@ cases are still included.
 #+end_src
 
 syntax sugar
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (define (same-parity . x)
   (let parity ((first (car x)) (x x))
        (cond ((null? x) '())
@@ -88,7 +93,8 @@ syntax sugar
 #+end_src
 * Exercise2.21
 map
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (define (square-list x)
   (map (lambda (x) (* x x))
        x))
@@ -96,7 +102,8 @@ map
 #+end_src
 
 recursive
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (define (square x)
   (* x x))
 (define (square-list items)
@@ -121,7 +128,8 @@ the second
 (cons ((null 1) 4) 9)
 ...
 
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (define
   (square-list items)
   (define
@@ -137,7 +145,8 @@ the second
 #+end_src
 
 * Exercise2.23
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (define (for-each p x)
   (if (null? x)
       #t
@@ -166,14 +175,16 @@ the list structure viewed as a tree:
                     3     4
 
 * Exercise2.25
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (car (cdr (car (cdr (cdr (list 1 3 (list 5 7) 9))))))
 (car (car (list (list 7))))
 (car (cadr (cadr (cadr (cadr (cadr (cadr (list 1 (list 2 (list 3 (list 4 (list 5 (list 6 (list 7))))))))))))))
 #+end_src
 
 * Exercise2.26
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (define x (list 1 2 3))
 (define y (list 4 5 6))
 (append x y)
@@ -185,7 +196,8 @@ the list structure viewed as a tree:
 #+end_src
 
 * Exercise2.27
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (define (reverse x)
   (if (null? x)
       '()
@@ -208,7 +220,8 @@ x
 #+end_src
 
 * Exercise2.28
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (define (fringe x)
   (cond ((null? x) '())
 	((not (pair? x)) (list x))
@@ -220,7 +233,8 @@ x
 #+end_src
 
 * Exercise2.29
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (define (make-mobile left right)
   (list left right))
 (define (make-branch length structure)
@@ -303,7 +317,8 @@ After the representation of mobiles changed, we only need to rewrite
 the /right-branch/ and /branch-structure/ selector
 
 * Exercise2.30
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (define (square-tree tree)
   (map (lambda (sub-tree)
 	 (if (pair? sub-tree)
@@ -321,7 +336,8 @@ the /right-branch/ and /branch-structure/ selector
 #+end_src
 
 * Exercise2.31
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (define (tree-map procedure tree)
   (cond ((null? tree) '())
 	((not (pair? tree)) (procedure tree))
@@ -335,7 +351,8 @@ the /right-branch/ and /branch-structure/ selector
 #+end_src
 
 * Exercise2.32
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (define
   (subsets s)
   (if (null? s)
@@ -347,7 +364,8 @@ the /right-branch/ and /branch-structure/ selector
 (subsets (list 2))
 #+end_src
 
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (null? '())
 ;; #t
 (cons 2 '())
@@ -356,7 +374,8 @@ the /right-branch/ and /branch-structure/ selector
 #+end_src
 
 * Exercise2.33
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (define
   (accumulate
    op
@@ -387,7 +406,8 @@ the /right-branch/ and /branch-structure/ selector
 #+end_src
 
 * Exercise2.34
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (define (accumulate op initial sequence) (if (null? sequence) initial (op (car sequence) (accumulate op initial (cdr sequence)))))
 (define (horner-eval x coefficient-sequence)
   (accumulate (lambda (this-coeff higher-terms)
@@ -396,7 +416,8 @@ the /right-branch/ and /branch-structure/ selector
 #+end_src
 
 * Exercise2.35
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (define (enumerate-tree tree) (cond ((null? tree) '()) ((not (pair? tree)) (list tree)) (else (append (enumerate-tree (car tree)) (enumerate-tree (cdr tree))))))
 (define (accumulate op initial sequence) (if (null? sequence) initial (op (car sequence) (accumulate op initial (cdr sequence)))))
 (define (count-leaves t)
@@ -406,7 +427,8 @@ the /right-branch/ and /branch-structure/ selector
 #+end_src
 
 * Exercise2.36 && 2.37
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (define (accumulate op initial sequence) (if (null? sequence) initial (op (car sequence) (accumulate op initial (cdr sequence)))))
 (define (carn sequence)
   (cond ((null? sequence) '())
@@ -449,7 +471,8 @@ the /right-branch/ and /branch-structure/ selector
 #+end_src
 
 * Exercise2.38 && 2.39
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (define (fold-left op initial sequence)
   (define (iter result rest)
     (if (null? rest)
@@ -483,8 +506,10 @@ the /right-branch/ and /branch-structure/ selector
 fold-right and fold-left will get the same values if (op x y)==(op y x)
 
 * Exercise2.40 && 2.41 && 2.42
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (define (accumulate op initial sequence) (if (null? sequence) initial (op (car sequence) (accumulate op initial (cdr sequence)))))
+(define (square x) (* x x))
 (define (accumulate-and initial sequence) (if (null? sequence) initial (and (car sequence) (accumulate-and initial (cdr sequence)))))
 (define (flatmap proc seq) (accumulate append '() (map proc seq)))
 (define (make-pair-sum pair)
@@ -493,6 +518,7 @@ fold-right and fold-left will get the same values if (op x y)==(op y x)
 (define (fermat-test n) (define (try-it a) (= (expmod a n n) a)) (try-it (+ 1 (random (- n 1)))))
 (define (expmod base exp m) (cond ((= exp 0) 1) ((even? exp) (remainder (square (expmod base (/ exp 2) m)) m)) (else (remainder (* base (expmod base (- exp 1) m)) m)))) 
 (define (fast-prime? n times) (cond ((= times 0) true) ((fermat-test n) (fast-prime? n (- times 1))) (else false)))
+
 (define (prime? x)
   (fast-prime? x 2))
 (define (enumerate-interval low high)
@@ -546,10 +572,6 @@ fold-right and fold-left will get the same values if (op x y)==(op y x)
   (queen-cols board-size))
 (define empty-board (list))
 
-(define (safe? k positions)
-  (let ((last (car positions)))
-    (accumulate-and true (map (lambda (x) (not (= last x))) (cdr positions)))))
-
 (define (count-map proc items count)
   (if (null? items)
       '()
@@ -573,7 +595,8 @@ fold-right and fold-left will get the same values if (op x y)==(op y x)
 #+end_src
 
 * Exercise2.43
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (flatmap
  (lambda (new-row)
    (map
@@ -590,7 +613,8 @@ fold-right and fold-left will get the same values if (op x y)==(op y x)
 Because flatmap use append, (append list1 list2) will car list1 until list1 is null, and Louis's method have a longer list1, so it will cost n times T
 
 * Exercise2.44
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (define (up-split painter n)
   (if (= n 0)
       painter
@@ -599,7 +623,8 @@ Because flatmap use append, (append list1 list2) will car list1 until list1 is n
 #+end_src
 
 * Exercise2.45
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (define right-split (split beside below))
 (define (split proc1 proc2)
   (lambda (painter n)
@@ -610,7 +635,8 @@ Because flatmap use append, (append list1 list2) will car list1 until list1 is n
 #+end_src
 
 * Exercise2.46&&2.47&&2.48&&2.49&&2.50&&2.51&&2.52
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (define (make-vector x y)
   (cons x y))
 (define (xcor-vect vector)

@@ -1,6 +1,7 @@
 #+STARTUP: indent
 * Exercise2.53
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (list 'a 'b 'c)
 ;; (a b c)
 (list (list 'george))
@@ -18,7 +19,8 @@
 #+end_src
 
 * Exercise2.54
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (define (equal? list1 list2)
   (if (and (null? list1) (null? list2))
       #t
@@ -30,9 +32,208 @@
 #+end_src
 
 * Exercise2.55
-#+begin_src scheme
+#+begin_src racket
+#lang scheme
 (car ''abracadabra)
 ;; quote
 #+end_src
 Because 'abracadabra == (quote abracadabra)
         (car '(quote abracadabra)) == quote
+
+* Exercise2.56
+#+begin_src racket
+#lang scheme
+(define
+  (deriv exp var)
+  (cond ((number? exp) 0)
+        ((variable? exp)
+         (if (same-variable? exp var)
+             1
+             0))
+        ((sum? exp)
+         (make-sum
+          (deriv (addend exp) var)
+          (deriv (augend exp) var)))
+        ((product? exp)
+         (make-sum
+          (make-product
+           (multiplier exp)
+           (deriv (multiplicand exp) var))
+          (make-product
+           (deriv (multiplier exp) var)
+           (multiplicand exp))))
+        ((exponentiation? exp)
+         (make-product
+          (make-product
+           (exponent exp)
+           (make-exponentiation (base exp) (make-sum (exponent exp) -1)))
+          (deriv (base exp) var)))
+        (else
+         (error
+          "unknown expression type: DERIV"
+          exp))))
+(define (=number? exp num) (and (number? exp) (= exp num))) 
+(define (variable? x) (symbol? x))
+(define (same-variable? v1 v2)
+  (and (variable? v1) (variable? v2) (eq? v1 v2)))
+(define
+  (make-sum a1 a2)
+  (cond ((=number? a1 0) a2)
+        ((=number? a2 0) a1)
+        ((and (number? a1) (number? a2))
+         (+ a1 a2))
+        (else (list '+ a1 a2))))
+(define (make-product m1 m2)
+  (cond ((or (=number? m1 0) (=number? m2 0)) 0)
+        ((=number? m1 1) m2)
+        ((=number? m2 1) m1)
+        ((and (number? m1) (number? m2)) (* m1 m2))
+        (else (list '* m1 m2))))
+(define (make-exponentiation b e)
+  (cond ((=number? e 0) 1)
+        ((=number? e 1) b)
+        (else (list '** b e))))
+(define (sum? x) (and (pair? x) (eq? (car x) '+)))
+(define (addend s) (cadr s))
+(define (augend s)
+  (cond ((null? (cdddr s)) (caddr s))
+        (else (cons '+ (cddr s)))))
+(define (product? x) (and (pair? x) (eq? (car x) '*)))
+(define (multiplier p) (cadr p))
+(define (multiplicand p)
+  (cond ((null? (cdddr p)) (caddr p))
+        (else (cons '* (cddr p)))))
+(define (exponentiation? x) (and (pair? x) (eq? (car x) '**)))
+(define (base s) (cadr s))
+(define (exponent s) (caddr s))
+(deriv '(+ x 3) 'x)
+(deriv '(* x y) 'x)
+(deriv '(* (* x y) (+ x 3)) 'x)
+(deriv '(** x 2) 'x)
+(deriv '(* (** x 3) y z) 'x)
+#+end_src
+
+* Exercise2.58
+a. fully parenthesized
+#+begin_src racket
+#lang scheme
+(define
+  (deriv exp var)
+  (cond ((number? exp) 0)
+        ((variable? exp)
+         (if (same-variable? exp var)
+             1
+             0))
+        ((sum? exp)
+         (make-sum
+          (deriv (addend exp) var)
+          (deriv (augend exp) var)))
+        ((product? exp)
+         (make-sum
+          (make-product
+           (multiplier exp)
+           (deriv (multiplicand exp) var))
+          (make-product
+           (deriv (multiplier exp) var)
+           (multiplicand exp))))
+        (else
+         (error
+          "unknown expression type: DERIV"
+          exp))))
+(define (=number? exp num) (and (number? exp) (= exp num))) 
+(define (variable? x) (symbol? x))
+(define (same-variable? v1 v2)
+  (and (variable? v1) (variable? v2) (eq? v1 v2)))
+(define
+  (make-sum a1 a2)
+  (cond ((=number? a1 0) a2)
+        ((=number? a2 0) a1)
+        ((and (number? a1) (number? a2))
+         (+ a1 a2))
+        (else (list a1 '+ a2))))
+(define (make-product m1 m2)
+  (cond ((or (=number? m1 0) (=number? m2 0)) 0)
+        ((=number? m1 1) m2)
+        ((=number? m2 1) m1)
+        ((and (number? m1) (number? m2)) (* m1 m2))
+        (else (list m1 '* m2))))
+(define (sum? x) (and (pair? x) (eq? (cadr x) '+)))
+(define (addend s) (car s))
+(define (augend s) (caddr s))
+(define (product? x) (and (pair? x) (eq? (cadr x) '*)))
+(define (multiplier p) (car p))
+(define (multiplicand p) (caddr p))
+(deriv '(x + (3 * (x + (y + 2)))) 'x)
+#+end_src
+b. drops unnecessary parentheses
+#+begin_src racket
+#lang scheme
+(define
+  (deriv exp var)
+  (cond ((number? exp) 0)
+        ((variable? exp)
+         (if (same-variable? exp var)
+             1
+             0))
+        ((sum? exp)
+         (make-sum
+          (deriv (addend exp) var)
+          (deriv (augend exp) var)))
+        ((product? exp)
+         (make-sum
+          (make-product
+           (multiplier exp)
+           (deriv (multiplicand exp) var))
+          (make-product
+           (deriv (multiplier exp) var)
+           (multiplicand exp))))
+        (else
+         (error
+          "unknown expression type: DERIV"
+          exp))))
+(define (=number? exp num) (and (number? exp) (= exp num))) 
+(define (variable? x) (symbol? x))
+(define (same-variable? v1 v2)
+  (and (variable? v1) (variable? v2) (eq? v1 v2)))
+(define
+  (make-sum a1 a2)
+  (cond ((=number? a1 0) a2)
+        ((=number? a2 0) a1)
+        ((and (number? a1) (number? a2))
+         (+ a1 a2))
+        ((and (pair? (car a2)) (sum? a2)) (list a1 '+ (make-sum (addend a2) (augend a2))))
+        ((and (pair? (car a2)) (product? a2)) (make-product (list a1 '* (multiplier a2)) (make-multiplicand a2)))
+        (else (list a1 '+ a2))))
+(define (make-product m1 m2)
+  (cond ((or (=number? m1 0) (=number? m2 0)) 0)
+        ((=number? m1 1) m2)
+        ((=number? m2 1) m1)
+        ((and (number? m1) (number? m2)) (* m1 m2))
+        ((sum? m2) (make-sum (list m1 '* (addend m2)) (augend m2)))
+        ((and (pair? (car m2)) (product? m2)) (make-product (list m1 '* (multiplier m2)) (multiplicand m2)))
+        (else (list m1 '* m2))))
+(define (sum? x) (and (pair? x) (eq? (cadr x) '+)))
+(define (addend s) (car s))
+(define (augend s)
+  (cond ((null? (cdddr s)) (caddr s))
+        (else (cddr s))))
+(define (product? x) (and (pair? x) (eq? (cadr x) '*)))
+(define (multiplier p) (car p))
+(define (multiplicand p) (caddr p))
+(define (wrap-multiplicand p)
+  (cond ((null? (cdddr p)) (caddr p))
+        (else (cddr p))))
+(define (wrap exp)
+  (cond ((sum? exp) (make-sum (addend exp) (wrap (wrap-augend exp))))
+        ((product? exp) (make-product (multiplier exp) (wrap (wrap-multiplicand exp))))))
+
+;;(define (wrap exp)
+;;  ((cond ((sum? exp) ()))))
+;; (deriv '(x + 3 * (x + y + 2) + 3 * x) 'x)
+;; (augend '(x + 3 * (x + y + 2) + 3 * x))
+(deriv '(3 * x + 3 * x) 'x)
+(define exp1 '(3 * x + 3 * x))
+(deriv '((3 * x) + (3 * x)) 'x)
+;; (make-product (multiplier exp1) (multiplicand exp1))
+;; (deriv '(x * y * z) 'x)
+#+end_src
