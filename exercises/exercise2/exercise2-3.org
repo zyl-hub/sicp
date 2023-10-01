@@ -483,7 +483,7 @@ tree, for the remain part, use (car remain) as entry and use (cdr
 remain) to produce the right half
 b. O(n)
 
-* Exercise2.67&&2.68
+* Exercise2.67&&2.68&&2.69&&2.70
 #+begin_src racket
 #lang scheme
 (define (make-leaf symbol weight) (list 'leaf symbol weight))
