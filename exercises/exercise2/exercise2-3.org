@@ -615,10 +615,6 @@ sample-tree
                                                             (cadr
                                                              leaf-pairs))
                                             (cddr leaf-pairs))))))
-(generate-huffman-tree '((na 16) (yip 9) (Sha 3) (a
-                                                                    2)
-                                                   (job 2) (Get 2)
-                                                   (Wah 1) (boom 1)))
 ;; (generate-huffman-tree '((A 4) (B 2) (C 1) (D 1)))
 ;; ((leaf A 4) ((leaf B 2) ((leaf D 1) (leaf C 1) (D C) 2) (B D C) 4) (A B D C) 8)
 (length (encode '(Get a job Sha na na na na na na na na Get a job Sha na na na
@@ -647,6 +643,31 @@ na na na na na Wah yip yip yip yip yip yip yip yip yip Sha boom)
 ;; (1 1 1 1 0)
 ;; (1 1 0 1 1)
 ;; (1 1 0 1 0)
+(define tree-5 (generate-huffman-tree '((A 1) (B 2) (C 4) (D 8) (E 16))))
+(define tree-10 (generate-huffman-tree '((A 1) (B 2) (C 4) (D 8)
+                                               (E 16) (F 32) (G 64) (H 128) (I 256) (J 512))))
+(define tree-8 (generate-huffman-tree '((A 1) (B 2) (C 4) (D 8)
+                                               (E 16) (F 32) (G 64) (H 128))))
+tree-5
+tree-10
+
 #+end_src
 huffman-encode: 84
+
 fixed-length: (* 3 (+ 2 2 3 1 1 2 16 9)) = 108
+
+Exercise2.71
+
+the most frequent symbol 1 bit
+
+the least frequent symbol 4 bits
+
+the most frequent symbol 1 bit
+
+the least frequent symbol 9 bits
+
+Exercise2.72
+
+the most frequent symbol \(O(1)\)
+
+the least frequent symbol \(O(n)\)
