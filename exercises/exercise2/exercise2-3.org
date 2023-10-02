@@ -591,22 +591,62 @@ sample-tree
                                                          x "not in tree"))
         ((equal? x (symbol-leaf (left-branch tree))) '(0))
         ((equal? x (symbol-leaf (right-branch tree))) '(1))
-        (else (append '(1) (encode-symbol x (right-branch tree))))))
+        ((element-of-set? x (symbols (right-branch tree))) (append
+                                                            '(1)
+                                                            (encode-symbol
+                                                             x
+                                                             (right-branch
+                                                              tree))))
+        ((element-of-set? x (symbols (left-branch tree))) (append '(0)
+                                                                  (encode-symbol
+                                                                   x
+                                                                   (left-branch
+                                                                    tree))))))
 ;; (encode-symbol 'D sample-tree)
-(encode '(A D A B B C A) sample-tree)
+;; (encode '(A D A B B C A) sample-tree)
 (define (generate-huffman-tree pairs)
   (successive-merge (make-leaf-set pairs)))
 (define (successive-merge leaf-pairs)
-  (successive-merge-reverse (reverse leaf-pairs)))
-(define (successive-merge-reverse leaf-pairs)
-  (cond ((null? (cddr leaf-pairs)) (make-code-tree (cadr leaf-pairs)
-                                                   (car leaf-pairs)))
-        (else (make-code-tree (car leaf-pairs) (successive-merge-reverse (cdr leaf-pairs))))))
-(generate-huffman-tree '((A 4) (B 2) (C 1) (D 1)))
+  (cond ((null? (cdr leaf-pairs)) leaf-pairs)
+        ((null? (cddr leaf-pairs)) (make-code-tree (car leaf-pairs)
+                                                   (cadr leaf-pairs)))
+        (else (successive-merge (adjoin-set (make-code-tree (car
+                                                             leaf-pairs)
+                                                            (cadr
+                                                             leaf-pairs))
+                                            (cddr leaf-pairs))))))
+(generate-huffman-tree '((na 16) (yip 9) (Sha 3) (a
+                                                                    2)
+                                                   (job 2) (Get 2)
+                                                   (Wah 1) (boom 1)))
+;; (generate-huffman-tree '((A 4) (B 2) (C 1) (D 1)))
 ;; ((leaf A 4) ((leaf B 2) ((leaf D 1) (leaf C 1) (D C) 2) (B D C) 4) (A B D C) 8)
 (length (encode '(Get a job Sha na na na na na na na na Get a job Sha na na na
 na na na na na Wah yip yip yip yip yip yip yip yip yip Sha boom)
 (generate-huffman-tree '((na 16) (yip 9) (Sha 3) (a 2) (job 2) (Get 2) (Wah 1) (boom 1)))))
+;; 84
+(define code-tree (generate-huffman-tree '((na 16) (yip 9) (Sha 3) (a
+                                                                    2)
+                                                   (job 2) (Get 2)
+                                                   (Wah 1) (boom 1))))
+
+;; code-tree
+(encode-symbol 'na code-tree) 
+(encode-symbol 'yip code-tree)
+(encode-symbol 'Sha code-tree)
+(encode-symbol 'a code-tree)
+(encode-symbol 'job code-tree)
+(encode-symbol 'Get code-tree)
+(encode-symbol 'Wah code-tree)
+(encode-symbol 'boom code-tree)
+;; (0)
+;; (1 0)
+;; (1 1 1 0)
+;; (1 1 0 0)
+;; (1 1 1 1 1)
+;; (1 1 1 1 0)
+;; (1 1 0 1 1)
+;; (1 1 0 1 0)
 #+end_src
-huffman-encode: 87
+huffman-encode: 84
 fixed-length: (* 3 (+ 2 2 3 1 1 2 16 9)) = 108
