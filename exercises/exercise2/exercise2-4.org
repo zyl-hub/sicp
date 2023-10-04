@@ -1,0 +1,164 @@
+#+STARTUP: indent
+* Exercise2.73
+#+begin_src racket
+#lang scheme
+(define (variable? x) (symbol? x))
+(define (same-variable? v1 v2) (and (variable? v1) (variable? v2) (eq? v1 v2))) 
+(define (deriv exp var)
+  (cond ((number? exp) 0)
+        ((variable? exp) (if (same-variable? exp var) 1 0))
+        (else ((get 'deriv (operator exp))
+               (operands exp) var))))
+(define (operator exp) (car exp))
+(define (operands exp) (cdr exp))
+
+(define (install-sum-package)
+  (define (make-sum a1 a2) (cond ((=number? a1 0) a2) ((=number? a2 0)
+a1) ((and (number? a1) (number? a2)) (+ a1 a2)) (else (list '+ a1
+a2))))
+
+  (define (addend s)
+    (cadr s))
+
+  (define (augend s)
+    (caddr s))
+
+  (define (deriv exp var)
+    (make-sum (deriv (addend exp) var)
+              (deriv (augend exp) var)))
+  (put 'deriv '(+) deriv)
+  (put 'make-sum '(+) make-sum)
+  'done)
+
+(define (install-product-package)
+  (define (make-product m1 m2) (cond ((or (=number? m1 0) (=number? m2
+0)) 0) ((=number? m1 1) m2) ((=number? m2 1) m1) ((and (number? m1)
+(number? m2)) (* m1 m2)) (else (list '* m1 m2))))
+
+  (define (multiplier p)
+    (cadr p))
+
+  (define (multiplicand p)
+    (caddr p))
+
+  (define (deriv exp var)
+    ((get 'make-sum '+) (make-product
+                         (multiplier exp)
+                         (deriv (multiplicand exp) var))
+                        (make-product
+                         (deriv (multiplier exp) var)
+                         (multiplicand exp))))
+  (put 'make-product '(*) make-product)
+  (put 'deriv '(*) deriv)
+  'done)
+
+(define (install-exp-package)
+  (define (base s)
+    (cadr s))
+  (define (exponent s)
+    (caddr s))
+  (define (make-exponentiation b e)
+    (cond ((=number? e 0) 1)
+          ((=number? e 1) b)
+          (else (list '** b e))))
+  (define make-sum (get 'make-sum '+))
+  (define make-product (get 'make-product '*))
+  (define (deriv s)
+     (make-product
+      (make-product
+       (exponent exp)
+       (make-exponentiation (base exp) (make-sum (exponent exp) -1)))
+      (deriv (base exp) var))))
+#+end_src
+a. Check the exp operator type, use operator type to find relating
+deriv procedure. Because number? and variable? are not expressed in quote list.
+b. above
+c. above
+d. We only need to change the put function calls from (put 'deriv 'operator)
+to (put 'operater 'deriv)
+
+* Exercise2.74
+#+begin_src racket
+#lang scheme
+(define (get-records name file)
+  ((get 'get-records (type file)) name))
+(define (get-salary record)
+  ((get 'get-salary (type record)) (content record)))
+(define (find-employee-record name files)
+  (cond ((null? files) (error "Can not find record"))
+        ((null? (get-records name (car files))) (find-employee-record
+name (cdr files)))
+        (else (get-records name (car files)))))
+#+end_src
+a. We need file and employee's name, and we need division name
+attached in the file
+b. record need have a type tag
+c. above
+d. create a new install package and use put method to put the method
+for the new division into the table
+
+* Exercise2.75
+#+begin_src racket
+#lang scheme
+(define (make-from-mag-ang x y)
+  (define (dispatch op)
+    (cond ((eq? op 'real-part)
+           (* x (cos y)))
+          ((eq? op 'imag-part)
+           (* x (sin y)))
+          ((eq? op 'magnitude)
+           x)
+          ((eq? op 'angle)
+           y)
+          (else (error "Unknown op: MAKE-FROM-REAL-IMAG" op))))
+  dispatch)
+((make-from-mag-ang 1 1.047) 'real-part)
+#+end_src
+
+* Exercise2.76
+- explicit dispatch
+  1. modify the function name in different types
+  2. modify the explicit dispatch function to make the system work
+     with the new type
+- data directed style
+  Do not need any change, only need put new method for interface, a
+  install package, most appropriate for a system in which new
+  operations must often be added.
+- message passing
+  Only need the defination of the new type, most appropriate for a
+  system in which new types must often be added.
+  
+* 练习
+scheme repeat function impl
+#+begin_src racket
+#lang scheme
+(define (power_unary op n x)
+  (cond ((= n 0) x)
+        ((> n 0) (power_unary op (- n 1) (op x)))))
+
+(define (foo x)
+  (- x 1))
+
+(power_unary foo 5 1)
+#+end_src
+
+cpp repeat function impl
+#+begin_src cpp
+#include <iostream>
+
+int main() {
+    auto power_unary = [](auto f, auto n, auto x) {
+        while (n > 0) {
+            n -= 1;
+            x = f(x);
+        }
+        return x;
+    };
+
+    auto foo = [](auto x) {
+        return x + 1;
+    };
+    
+    std::cout << power_unary(foo, 5, 1);
+}
+#+end_src
